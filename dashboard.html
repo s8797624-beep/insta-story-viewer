@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StoryPeek — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --card: #1c1c28;
+      --border: rgba(255,255,255,0.07);
+      --pink: #f0407a;
+      --orange: #ff8c42;
+      --purple: #9b5de5;
+      --text: #f0f0f5;
+      --muted: #7a7a9a;
+      --grad: linear-gradient(135deg, #f0407a, #ff8c42, #9b5de5);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .nav-brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .nav-search {
+      flex: 1;
+      max-width: 440px;
+      position: relative;
+    }
+
+    .nav-search input {
+      width: 100%;
+      padding: 10px 44px 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .nav-search input:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(240,64,122,0.15);
+    }
+
+    .nav-search input::placeholder { color: var(--muted); }
+
+    .nav-search button {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      background: var(--grad);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: opacity 0.2s;
+    }
+
+    .nav-search button:hover { opacity: 0.85; }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--grad);
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .nav-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      background: var(--surface);
+    }
+
+    .nav-username {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      display: none;
+    }
+
+    @media(min-width: 600px) { .nav-username { display: block; } }
+
+    .btn-logout {
+      padding: 7px 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-logout:hover {
+      border-color: var(--pink);
+      color: var(--pink);
+    }
+
+    /* MAIN */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .hero h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .hero h2 span {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      max-width: 520px;
+      margin: 0 auto 48px;
+      animation: fadeUp 0.6s 0.1s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 16px 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(240,64,122,0.15);
+    }
+
+    .search-box input::placeholder { color: var(--muted); }
+
+    .search-box button {
+      padding: 16px 24px;
+      background: var(--grad);
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .search-box button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* RESULT AREA */
+    #resultArea {
+      animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+
+    .result-card:hover {
+      border-color: rgba(240,64,122,0.4);
+      transform: translateY(-2px);
+    }
+
+    .result-avatar {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .story-ring {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--grad);
+      padding: 3px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(240,64,122,0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(240,64,122,0); }
+    }
+
+    .story-ring img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      background: var(--surface);
+    }
+
+    .result-info { flex: 1; min-width: 0; }
+
+    .result-info h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-info p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .result-badge {
+      padding: 6px 14px;
+      background: rgba(240,64,122,0.15);
+      border: 1px solid rgba(240,64,122,0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--pink);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .btn-view {
+      padding: 10px 20px;
+      background: var(--grad);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-view:hover { opacity: 0.85; }
+
+    /* RECENT */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .recent-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+
+    .chip {
+      padding: 7px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip:hover {
+      border-color: var(--pink);
+      color: var(--pink);
+    }
+
+    /* ERROR & LOADING */
+    .state-box {
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    .state-box .icon { font-size: 48px; margin-bottom: 16px; }
+
+    .state-box h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .state-box p { color: var(--muted); font-size: 14px; }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--pink);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* POPULAR */
+    .popular-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .popular-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .popular-card:hover {
+      border-color: rgba(240,64,122,0.4);
+      transform: translateY(-3px);
+    }
+
+    .popular-card .p-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--grad);
+      padding: 2px;
+      margin: 0 auto 10px;
+    }
+
+    .popular-card .p-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      background: var(--surface);
+    }
+
+    .popular-card .p-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .popular-card .p-handle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="dashboard.html">StoryPeek</a>
+  <div class="nav-search">
+    <input type="text" id="navSearchInput" placeholder="Search username..." onkeydown="if(event.key==='Enter')navSearch()"/>
+    <button onclick="navSearch()">→</button>
+  </div>
+  <div class="nav-user">
+    <span class="nav-username" id="navUsername">@user</span>
+    <div class="nav-avatar">
+      <img id="navAvatar" src="" alt="avatar"/>
+    </div>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+    <h2>View <span>Instagram Stories</span><br/>of public accounts</h2>
+    <p>Search any public Instagram username to view their active stories</p>
+  </div>
+
+  <div class="search-box">
+    <input type="text" id="mainSearch" placeholder="Enter Instagram username..." onkeydown="if(event.key==='Enter')searchUser()"/>
+    <button onclick="searchUser()">View Stories</button>
+  </div>
+
+  <div id="resultArea"></div>
+
+  <div id="recentSection" style="display:none">
+    <div class="section-title">Recent Searches</div>
+    <div class="recent-chips" id="recentChips"></div>
+  </div>
+
+  <div class="section-title">Try These Popular Accounts</div>
+  <div class="popular-grid" id="popularGrid"></div>
+</main>
+
+<script>
+  // Auth guard
+  const user = sessionStorage.getItem('sp_user');
+  if (!user) window.location.href = 'index.html';
+
+  // Set nav user info
+  document.getElementById('navUsername').textContent = '@' + user;
+  const avatar = sessionStorage.getItem('sp_avatar') || `https://ui-avatars.com/api/?name=${user}&background=f0407a&color=fff&bold=true`;
+  document.getElementById('navAvatar').src = avatar;
+
+  function logout() {
+    sessionStorage.clear();
+    window.location.href = 'index.html';
+  }
+
+  // Popular accounts to try
+  const popular = [
+    { handle: 'natgeo', name: 'National Geographic' },
+    { handle: 'nasa', name: 'NASA' },
+    { handle: 'bbcnews', name: 'BBC News' },
+    { handle: 'apple', name: 'Apple' },
+    { handle: 'nike', name: 'Nike' },
+    { handle: 'netflix', name: 'Netflix' },
+  ];
+
+  const grid = document.getElementById('popularGrid');
+  popular.forEach(acc => {
+    const card = document.createElement('div');
+    card.className = 'popular-card';
+    card.innerHTML = `
+      <div class="p-avatar">
+        <img src="https://ui-avatars.com/api/?name=${acc.handle}&background=1c1c28&color=f0407a&bold=true&size=128" alt="${acc.name}"/>
+      </div>
+      <div class="p-name">${acc.name}</div>
+      <div class="p-handle">@${acc.handle}</div>
+    `;
+    card.onclick = () => viewStories(acc.handle);
+    grid.appendChild(card);
+  });
+
+  // Recent searches
+  function loadRecent() {
+    const recent = JSON.parse(localStorage.getItem('sp_recent') || '[]');
+    const section = document.getElementById('recentSection');
+    const chips = document.getElementById('recentChips');
+    if (recent.length === 0) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    chips.innerHTML = '';
+    recent.slice(0, 8).forEach(u => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = `📷 @${u}`;
+      chip.onclick = () => viewStories(u);
+      chips.appendChild(chip);
+    });
+  }
+
+  loadRecent();
+
+  function saveRecent(username) {
+    let recent = JSON.parse(localStorage.getItem('sp_recent') || '[]');
+    recent = [username, ...recent.filter(u => u !== username)].slice(0, 10);
+    localStorage.setItem('sp_recent', JSON.stringify(recent));
+    loadRecent();
+  }
+
+  function navSearch() {
+    const val = document.getElementById('navSearchInput').value.trim().replace('@','');
+    if (val) viewStories(val);
+  }
+
+  function searchUser() {
+    const val = document.getElementById('mainSearch').value.trim().replace('@','');
+    if (!val) return;
+    viewStories(val);
+  }
+
+  function viewStories(username) {
+    saveRecent(username);
+    sessionStorage.setItem('sp_target', username);
+    window.location.href = 'viewer.html';
+  }
+</script>
+</body>
+</html>

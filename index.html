@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StoryPeek — Instagram Story Viewer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --card: #1c1c28;
+      --border: rgba(255,255,255,0.07);
+      --pink: #f0407a;
+      --orange: #ff8c42;
+      --purple: #9b5de5;
+      --text: #f0f0f5;
+      --muted: #7a7a9a;
+      --grad: linear-gradient(135deg, #f0407a, #ff8c42, #9b5de5);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated background blobs */
+    .bg-blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      animation: blobFloat 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .blob1 { width: 500px; height: 500px; background: var(--pink); top: -150px; left: -150px; animation-delay: 0s; }
+    .blob2 { width: 400px; height: 400px; background: var(--purple); bottom: -100px; right: -100px; animation-delay: 3s; }
+    .blob3 { width: 300px; height: 300px; background: var(--orange); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 1.5s; }
+
+    @keyframes blobFloat {
+      0%, 100% { transform: scale(1) translate(0,0); }
+      50% { transform: scale(1.1) translate(20px, -20px); }
+    }
+
+    .login-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-area {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo-ring {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      padding: 3px;
+      animation: spin 4s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    .logo-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .logo-area h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-area p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-weight: 300;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 32px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+    }
+
+    .card h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .card .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(240,64,122,0.15);
+    }
+
+    .form-group input::placeholder { color: var(--muted); }
+
+    .btn-login {
+      width: 100%;
+      padding: 15px;
+      background: var(--grad);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-login:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-login:active { transform: translateY(0); }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .btn-oauth {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-oauth:hover {
+      background: var(--surface);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .insta-icon {
+      width: 22px;
+      height: 22px;
+      background: var(--grad);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .notice {
+      margin-top: 24px;
+      padding: 12px 16px;
+      background: rgba(240,64,122,0.08);
+      border: 1px solid rgba(240,64,122,0.2);
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .notice span { color: var(--pink); }
+
+    .error-msg {
+      background: rgba(240,64,122,0.1);
+      border: 1px solid rgba(240,64,122,0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #ff6b9d;
+      margin-bottom: 16px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blob blob1"></div>
+  <div class="bg-blob blob2"></div>
+  <div class="bg-blob blob3"></div>
+
+  <div class="login-container">
+    <div class="logo-area">
+      <div class="logo-ring">
+        <div class="logo-inner">📸</div>
+      </div>
+      <h1>StoryPeek</h1>
+      <p>View public Instagram stories anonymously</p>
+    </div>
+
+    <div class="card">
+      <h2>Welcome back</h2>
+      <p class="subtitle">Sign in to start viewing stories</p>
+
+      <div class="error-msg" id="errorMsg">❌ Please enter a valid username and password.</div>
+
+      <div class="form-group">
+        <label>Instagram Username</label>
+        <input type="text" id="username" placeholder="@yourusername" autocomplete="username"/>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+
+      <button class="btn-login" onclick="handleLogin()">Sign In →</button>
+
+      <div class="divider">or continue with</div>
+
+      <button class="btn-oauth" onclick="handleOAuth()">
+        <div class="insta-icon">📷</div>
+        Continue with Instagram
+      </button>
+
+      <div class="notice">
+        🔒 <span>Public accounts only.</span> We never store your credentials or post on your behalf.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check if already logged in
+    if (sessionStorage.getItem('sp_user')) {
+      window.location.href = 'dashboard.html';
+    }
+
+    function handleLogin() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const err = document.getElementById('errorMsg');
+
+      if (!username || !password) {
+        err.style.display = 'block';
+        err.textContent = '❌ Please enter your username and password.';
+        return;
+      }
+
+      if (password.length < 6) {
+        err.style.display = 'block';
+        err.textContent = '❌ Password must be at least 6 characters.';
+        return;
+      }
+
+      err.style.display = 'none';
+
+      // Save session (demo mode - in production use real OAuth)
+      const cleanUsername = username.replace('@', '');
+      sessionStorage.setItem('sp_user', cleanUsername);
+      sessionStorage.setItem('sp_avatar', `https://ui-avatars.com/api/?name=${cleanUsername}&background=f0407a&color=fff&bold=true&size=128`);
+
+      window.location.href = 'dashboard.html';
+    }
+
+    function handleOAuth() {
+      // In production, redirect to Instagram OAuth
+      // window.location.href = 'https://api.instagram.com/oauth/authorize?...'
+      alert('⚠️ Instagram OAuth requires a registered app on Meta Developers.\n\nFor now, use the username/password form above to demo the app.\n\nVisit: developers.facebook.com to register your app.');
+    }
+
+    // Allow Enter key to login
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+  </script>
+</body>
+</html>
